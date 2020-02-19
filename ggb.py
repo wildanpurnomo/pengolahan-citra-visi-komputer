@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #read original
-ori_img = cv2.imread('paper.png')
+ori_img = cv2.imread('path_to_image')
 
 #OpenCV display image using BGR space by default.
 #Therefore. we should it to RGB to achieve orignal image.
