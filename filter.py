@@ -113,7 +113,9 @@ def median_filter(img, ksize=5):
 
     for i in range (sliding_height) :
         for j in range (sliding_width) :
-            arr = []
+            arr_h = []
+            arr_s = []
+            arr_v = []
             center_x = j + center
             center_y = i + center
             for k in range (i, i + ksize) :
@@ -121,44 +123,38 @@ def median_filter(img, ksize=5):
                     if k == center_y and l == center_x :
                         continue
                     
-                    arr.append(img[k][l])
+                    arr_h.append(img[k][l][0])
+                    arr_s.append(img[k][l][1])
+                    arr_v.append(img[k][l][2])
 
-            img[center_y][center_x] = np.median(arr)
+            img[center_y][center_x][0] = np.median(arr_h)
+            img[center_y][center_x][1] = np.median(arr_s)
+            img[center_y][center_x][2] = np.median(arr_v)
             
     return img
 
 if __name__ == "__main__" :
-    
-    ori_img = cv2.imread('images/img_1.png')
+
+    ori_img = cv2.imread('images/img_2.png')
 
     temp = ori_img[:, :, 0].copy()
     ori_img[:, :, 0] = ori_img[:, :, 2].copy()
     ori_img[:, :, 2] = temp
 
-    hsv_img = rgb_to_hsv(ori_img)
-    tes_bener = cv2.cvtColor(ori_img, cv2.COLOR_RGB2HSV)
-
-    h_img = hsv_img[:, :, 0].copy()
-    s_img = hsv_img[:, :, 1].copy()
-    v_img = hsv_img[:, :, 2].copy()
-    
-    filtered_hsv = np.ndarray(shape=hsv_img.shape, dtype=hsv_img.dtype)
-    filtered_hsv[:, :, 0] = median_filter(h_img)
-    filtered_hsv[:, :, 1] = median_filter(s_img)
-    filtered_hsv[:, :, 2] = median_filter(v_img)
-
-    tes_bener[:, :, 0] = cv2.medianBlur(tes_bener[:, :, 0], 5)
-    tes_bener[:, :, 1] = cv2.medianBlur(tes_bener[:, :, 1], 5)
-    tes_bener[:, :, 2] = cv2.medianBlur(tes_bener[:, :, 2], 5)
-
+    hsv_img = rgb_to_hsv(ori_img)    
+    filtered_hsv = median_filter(hsv_img)
     filtered_rgb = hsv_to_rgb(filtered_hsv)
-    filtered_rgb_bener = cv2.cvtColor(tes_bener, cv2.COLOR_HSV2RGB)
 
-    images = [ori_img, filtered_rgb, filtered_rgb_bener]
+    hsv_master = cv2.cvtColor(ori_img, cv2.COLOR_RGB2HSV)
+    hsv_master[:, :, 0] = cv2.medianBlur(hsv_master[:, :, 0], 5)
+    hsv_master[:, :, 1] = cv2.medianBlur(hsv_master[:, :, 1], 5)
+    hsv_master[:, :, 2] = cv2.medianBlur(hsv_master[:, :, 2], 5)
+    filtered_rgb_master = cv2.cvtColor(hsv_master, cv2.COLOR_HSV2RGB)
 
-    for item in images :
-        plt.figure()
-        plt.imshow(item)
-        plt.xticks([]), plt.yticks([])
-
+    plt.subplot(131), plt.imshow(ori_img), plt.title('Original')
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(132), plt.imshow(filtered_rgb), plt.title('Self-written\nmedian filter')
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(133), plt.imshow(filtered_rgb_master), plt.title('OpenCV\nmedian Filter')
+    plt.xticks([]), plt.yticks([])
     plt.show()
